@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>可愛動物主題舒爾特字母方格遊戲</title>
+<style>
+    body {
+        font-family: "Comic Sans MS", cursive, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f8ff;
+    }
+    .game-container {
+        text-align: center;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(6, 50px);
+        gap: 10px;
+        margin: 20px auto;
+    }
+    .grid div {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        font-weight: bold;
+        background-color: #e6e6ff;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid #6666ff;
+    }
+    .grid div.correct {
+        background-color: rgba(0, 255, 0, 0.2); /* Transparent green for correct selection */
+    }
+    #message {
+        font-size: 24px;
+        color: #cc3300;
+        margin-top: 20px;
+    }
+    #animal-message {
+        font-size: 18px;
+        color: #333;
+        margin-top: 5px;
+    }
+    button {
+        padding: 10px 15px;
+        font-size: 16px;
+        margin: 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        background-color: #6666ff;
+        color: white;
+    }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+    <h2>可愛動物主題舒爾特字母方格遊戲</h2>
+    <div id="animal-message">小熊說：快找字母 <span id="target-letter">A</span>！</div>
+    <div id="timer">時間: 0秒</div>
+    <div class="grid" id="grid"></div>
+    <button onclick="setLowerCase()">使用小寫字母</button>
+    <button onclick="setUpperCase()">使用大寫字母</button>
+    <button onclick="startGame()">開始遊戲</button>
+    <div id="total-time"></div>
+</div>
+
+<script>
+    const upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    const lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz".split("");
+    let letters = upperCaseLetters;
+    let currentIndex;
+    let startTime;
+    let timerInterval;
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function setUpperCase() {
+        letters = upperCaseLetters;
+        startGame();
+    }
+
+    function setLowerCase() {
+        letters = lowerCaseLetters;
+        startGame();
+    }
+
+    function startGame() {
+        const grid = document.getElementById("grid");
+        grid.innerHTML = "";
+        document.getElementById("total-time").textContent = "";
+        currentIndex = 0;
+        
+        // Shuffle the letters to randomize order
+        const shuffledLetters = shuffle([...letters]);
+        
+        shuffledLetters.forEach(letter => {
+            const cell = document.createElement("div");
+            cell.textContent = letter;
+            cell.onclick = () => checkLetter(cell, letter);
+            grid.appendChild(cell);
+        });
+
+        document.getElementById("target-letter").textContent = letters[currentIndex];
+        document.getElementById("animal-message").textContent = `小熊說：快找字母 ${letters[currentIndex]}！`;
+        resetTimer();
+        startTimer();
+    }
+
+    function checkLetter(cell, selectedLetter) {
+        if (selectedLetter === letters[currentIndex]) {
+            cell.classList.add("correct");
+            currentIndex++;
+            if (currentIndex < letters.length) {
+                document.getElementById("target-letter").textContent = letters[currentIndex];
+                document.getElementById("animal-message").textContent = `小熊說：快找字母 ${letters[currentIndex]}！`;
+            } else {
+                const endTime = new Date();
+                const totalTime = ((endTime - startTime) / 1000).toFixed(2);
+                document.getElementById("total-time").textContent = `恭喜！遊戲完成，總時間：${totalTime} 秒`;
+                clearInterval(timerInterval);
+            }
+        } else {
+            alert("錯誤，請繼續找！");
+        }
+    }
+
+    function startTimer() {
+        startTime = new Date();
+        timerInterval = setInterval(() => {
+            const elapsedTime = Math.floor((new Date() - startTime) / 1000);
+            document.getElementById("timer").textContent = "時間: " + elapsedTime + "秒";
+        }, 1000);
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        document.getElementById("timer").textContent = "時間: 0秒";
+    }
+</script>
+
+</body>
+</html>
+
